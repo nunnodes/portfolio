@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nunnodes | Portfolio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo brand-font">nunnodes</a>
+            <ul class="nav-menu">
+                <li class="active"><a href="#home">Home</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="#about">About me</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-icon">
+                <a href="#"><img src="assets/nunno_logo.png" alt="Logo" class="nav-logo-img"></a>
+            </div>
+        </div>
+    </nav>
+
+    <header id="home" class="hero-section">
+        <div class="hero-content">
+            <h1>Make your imagination come true</h1>
+        </div>
+    </header>
+
+    <section class="content-section">
+        <div class="section-header">
+            <h2>Recently Project</h2>
+        </div>
+        <p class="section-desc">
+            Event: Mercedes - 140 Years  of Inovation | 140 Years 140 Places.
+            <br>
+            Destination: Savanakhet - Pakse Laos.
+            <br>
+            Role: Graphics, Floorplan, Mockup, Printing Design | Sub-Photo&Video, Drone-cam Capture.
+        </p>
+        
+        <div class="carousel-container">
+            <button class="carousel-arrow prev" id="prevBtn">&#x276E;</button>
+            <div class="carousel-window">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="project-card" style="--bg-img: url('assets/140y_watphou.jpeg');" data-popup-img="assets/140y_watphou.jpeg"></div>
+                    <div class="project-card" style="--bg-img: url('assets/140y_sticker.jpeg');" data-popup-img="assets/140y_sticker.jpeg"></div>
+                </div>
+            </div>
+            <button class="carousel-arrow next" id="nextBtn">&#x276F;</button>
+        </div>
+    </section>
+
+    <section id="about" class="content-section about-section">
+        <div class="about-text-side">
+            <div class="section-header">
+                <h2>About Myself</h2>
+            </div>
+            <p class="section-desc">
+                Name: Anan Khannaphang <br>
+                AKA: nunnodes <br>
+                Birth: 18 - Apr - 2003 <br>
+                Gender: MMale <br>
+                Tel: +856 20 5635 3506 <br>
+                Mail: nunnodesu@gmail.com <br> <br>
+                " There's alway limit waiting for someone to break trough " <br>
+                I'm graphic design and dev from Laos. At first, I'm just a boy who love to making creative things to show for the world.
+            </p>
+        </div>
+        <div class="about-images-side">
+            <div class="about-img img-1" style="--bg-img: url('assets/me.jpg');" data-popup-img="assets/me.jpg"></div>
+            <div class="about-img img-2" style="--bg-img: url('assets/nunno_face2.png');" data-popup-img="assets/nunno_face2.png"></div>
+        </div>
+    </section>
+
+    <div id="imageLightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <div class="lightbox-wrapper">
+            <img id="lightboxImg" src="" alt="Full View">
+        </div>
+        <div class="lightbox-tip">Scroll mouse / Pinch screen to zoom. Drag to explore.</div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <span class="copyright">@2025 nunnodes</span>
+            <div class="nav-icon"><a href="#"><img src="assets/nunno_logo.png" alt="Logo" class="nav-logo-img"></a></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
