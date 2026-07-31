@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Pack Opener</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #ffffff;
+      --text-main: #f8fafc;
+      --accent-red: #ef4444;
+      --accent-black: #1e293b;
+      --gold: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: var(--gold);
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .stats {
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+
+    /* Main Stage */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .draw-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 3rem;
+      min-height: 280px;
+      perspective: 1000px;
+    }
+
+    /* Deck Stack Styling */
+    .deck-stack {
+      width: 160px;
+      height: 230px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border: 3px solid #60a5fa;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+    }
+
+    .deck-stack:hover:not(.disabled) {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    .deck-stack.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .deck-pattern {
+      font-size: 2.5rem;
+      color: rgba(255, 255, 255, 0.2);
+      font-weight: bold;
+    }
+
+    /* Flip Card Container */
+    .card-slot {
+      width: 160px;
+      height: 230px;
+      perspective: 1000px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--card-bg);
+      border: 1px solid #cbd5e1;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 3px solid var(--gold);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+    }
+
+    .card-front.red {
+      color: var(--accent-red);
+    }
+
+    .card-front.black {
+      color: var(--accent-black);
+    }
+
+    .card-corner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .card-corner.bottom-right {
+      transform: rotate(180deg);
+    }
+
+    .card-center-suit {
+      font-size: 3.5rem;
+      text-align: center;
+      align-self: center;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 1rem;
+    }
+
+    button {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #fbbf24;
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      background: #475569;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Collection Grid */
+    .drawn-history {
+      width: 100%;
+      margin-top: 2rem;
+    }
+
+    .history-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.5rem;
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .mini-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .mini-card.red { color: var(--accent-red); }
+    .mini-card.black { color: var(--accent-black); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎴 Card Pack Opener</h1>
+    <div class="stats">
+      Cards Remaining: <span id="remaining-count">52</span> / 52
+    </div>
+  </header>
+
+  <div class="stage">
+    <div class="draw-area">
+      <!-- Deck / Pack Stack -->
+      <div class="deck-stack" id="deck-btn" onclick="drawCard()">
+        <div class="deck-pattern">🂠</div>
+      </div>
+
+      <!-- Active Revealing Card -->
+      <div class="card-slot">
+        <div class="card" id="active-card">
+          <div class="card-back">
+            <span>PACK</span>
+          </div>
+          <div class="card-front" id="card-front">
+            <div class="card-corner top-left">
+              <span id="rank-top"></span>
+              <span id="suit-top"></span>
+            </div>
+            <div class="card-center-suit" id="suit-center"></div>
+            <div class="card-corner bottom-right">
+              <span id="rank-bottom"></span>
+              <span id="suit-bottom"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="btn-draw" onclick="drawCard()">Draw Card</button>
+      <button id="btn-shuffle" onclick="resetAndShuffle()">Shuffle & Restart</button>
+    </div>
+
+    <!-- Drawn Cards Collection -->
+    <div class="drawn-history">
+      <div class="history-title">Opened Cards (<span id="drawn-count">0</span>)</div>
+      <div class="history-grid" id="history-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const SUITS = [
+      { name: 'Hearts', symbol: '♥', color: 'red' },
+      { name: 'Diamonds', symbol: '♦', color: 'red' },
+      { name: 'Clubs', symbol: '♣', color: 'black' },
+      { name: 'Spades', symbol: '♠', color: 'black' }
+    ];
+
+    const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+    let deck = [];
+    let drawnCards = [];
+    let isAnimating = false;
+
+    // DOM Elements
+    const remainingEl = document.getElementById('remaining-count');
+    const drawnCountEl = document.getElementById('drawn-count');
+    const historyGrid = document.getElementById('history-grid');
+    const activeCard = document.getElementById('active-card');
+    const cardFront = document.getElementById('card-front');
+    const deckBtn = document.getElementById('deck-btn');
+    const btnDraw = document.getElementById('btn-draw');
+
+    const rankTop = document.getElementById('rank-top');
+    const suitTop = document.getElementById('suit-top');
+    const suitCenter = document.getElementById('suit-center');
+    const rankBottom = document.getElementById('rank-bottom');
+    const suitBottom = document.getElementById('suit-bottom');
+
+    // Initialize 52 cards without jokers
+    function generateDeck() {
+      const newDeck = [];
+      for (const suit of SUITS) {
+        for (const rank of RANKS) {
+          newDeck.push({ rank, suit });
+        }
+      }
+      return newDeck;
+    }
+
+    // Fisher-Yates Shuffle Algorithm
+    function shuffleDeck(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function resetAndShuffle() {
+      deck = shuffleDeck(generateDeck());
+      drawnCards = [];
+      isAnimating = false;
+
+      // Reset UI
+      remainingEl.innerText = deck.length;
+      drawnCountEl.innerText = 0;
+      historyGrid.innerHTML = '';
+      activeCard.classList.remove('flipped');
+      deckBtn.classList.remove('disabled');
+      btnDraw.disabled = false;
+      btnDraw.innerText = "Draw Card";
+    }
+
+    function drawCard() {
+      if (isAnimating || deck.length === 0) return;
+
+      isAnimating = true;
+      activeCard.classList.remove('flipped');
+
+      const card = deck.pop();
+      drawnCards.push(card);
+
+      // Brief delay to allow flip-back transition before loading new content
+      setTimeout(() => {
+        // Render card details
+        cardFront.className = `card-front ${card.suit.color}`;
+        rankTop.innerText = card.rank;
+        suitTop.innerText = card.suit.symbol;
+        suitCenter.innerText = card.suit.symbol;
+        rankBottom.innerText = card.rank;
+        suitBottom.innerText = card.suit.symbol;
+
+        // Flip card to show front
+        activeCard.classList.add('flipped');
+
+        // Add to history grid
+        addMiniCardToHistory(card);
+
+        // Update counts
+        remainingEl.innerText = deck.length;
+        drawnCountEl.innerText = drawnCards.length;
+
+        // Check if finished
+        if (deck.length === 0) {
+          deckBtn.classList.add('disabled');
+          btnDraw.disabled = true;
+          btnDraw.innerText = "Pack Empty!";
+        }
+
+        isAnimating = false;
+      }, 250);
+    }
+
+    function addMiniCardToHistory(card) {
+      const mini = document.createElement('div');
+      mini.className = `mini-card ${card.suit.color}`;
+      mini.innerText = `${card.rank}${card.suit.symbol}`;
+      historyGrid.prepend(mini); // Newest cards show first
+    }
+
+    // Start on page load
+    resetAndShuffle();
+  </script>
+</body>
+</html>
