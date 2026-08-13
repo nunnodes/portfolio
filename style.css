@@ -323,3 +323,44 @@ body {
     .about-images-side { width: 100%; height: auto; display: flex; gap: 20px; min-width: unset; }
     .about-img { position: static; width: 48%; height: 150px; }
 }
+
+.contact-section {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.contact-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.contact-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    color: #a80000;
+    text-decoration: none;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.contact-btn i {
+    font-size: 1.2rem;
+}
+
+/* Hover effects */
+.contact-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.15);
+}
