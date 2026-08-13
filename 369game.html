@@ -75,13 +75,8 @@
       align-items: center;
     }
 
-    .slot-left {
-      left: 10%;
-    }
-
-    .slot-right {
-      right: 10%;
-    }
+    .slot-left { left: 10%; }
+    .slot-right { right: 10%; }
 
     /* Behind-Deck Shuffle Button Element */
     .shuffle-underlay {
@@ -122,7 +117,7 @@
       border-radius: 12px;
       perspective: 1000px;
       cursor: pointer;
-      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.5s ease;
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.5s ease, opacity 0.3s ease;
       z-index: 10;
     }
 
@@ -199,6 +194,13 @@
       left: calc(90% - var(--card-width)) !important;
     }
 
+    /* Reshuffle Animation Class */
+    .card.reshuffling {
+      left: 10% !important;
+      transform: rotate(-360deg) scale(0.9) !important;
+      transition: left 0.6s cubic-bezier(0.5, 0, 0.1, 1), transform 0.6s cubic-bezier(0.5, 0, 0.1, 1) !important;
+    }
+
     /* History Grid */
     .history-section {
       width: 100%;
@@ -252,12 +254,11 @@
 
   <!-- Table Area -->
   <div class="table-stage" id="stage">
-    <!-- Placeholders for structure -->
     <div class="slot slot-left"></div>
     <div class="slot slot-right"></div>
 
     <!-- Shuffle button sitting underneath the main deck slot -->
-    <div class="shuffle-underlay" onclick="initDeck()">
+    <div class="shuffle-underlay" onclick="shuffleBackAndReset()">
       <span>🔄</span>
       <div>Shuffle Pack</div>
     </div>
@@ -305,7 +306,7 @@
     }
 
     function initDeck() {
-      // Clear existing card elements from DOM
+      // Clear existing elements
       activeCardElements.forEach(el => el.remove());
       activeCardElements = [];
       historyGrid.innerHTML = '';
@@ -317,28 +318,51 @@
       remainingEl.innerText = deck.length;
       drawnCountEl.innerText = 0;
 
-      // Render top 3 visual layers to give the deck depth
       renderDeckStack();
     }
 
+    function shuffleBackAndReset() {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const movedCards = activeCardElements.filter(el => el.classList.contains('moved'));
+
+      if (movedCards.length === 0) {
+        initDeck();
+        return;
+      }
+
+      // Animate opened cards back to the left slot in cascading order
+      movedCards.forEach((cardEl, index) => {
+        setTimeout(() => {
+          cardEl.classList.remove('flipped');
+          cardEl.classList.add('reshuffling');
+        }, index * 25); // staggered delay for a deck collection effect
+      });
+
+      // Total delay calculated based on stack size
+      const animDuration = (movedCards.length * 25) + 650;
+
+      setTimeout(() => {
+        initDeck();
+      }, animDuration);
+    }
+
     function renderDeckStack() {
-      // Clean old stacked cards
+      // Clean old un-moved deck stack cards
       activeCardElements.filter(el => !el.classList.contains('moved')).forEach(el => el.remove());
 
       if (deck.length === 0) return;
 
-      // Stack up to 3 cards visually for depth effect
       const stackSize = Math.min(deck.length, 3);
       for (let i = stackSize - 1; i >= 0; i--) {
         const cardData = deck[deck.length - 1 - i];
         const cardEl = buildCardElement(cardData);
         
-        // Offset lower cards slightly to give a 3D deck look
         cardEl.style.left = '10%';
         cardEl.style.transform = `translate(${-i * 1.5}px, ${-i * 1.5}px)`;
         cardEl.style.zIndex = 10 + (stackSize - i);
 
-        // Only the top card handles click interaction directly
         if (i === 0) {
           cardEl.onclick = () => revealAndMoveCard(cardEl, cardData);
         } else {
@@ -377,24 +401,19 @@
       if (isAnimating) return;
       isAnimating = true;
 
-      // 1. Pop card off the stack data array
       deck.pop();
       drawnCount++;
 
-      // 2. Flip card open & slide it over to the right side
       cardEl.classList.add('flipped');
       cardEl.classList.add('moved');
       cardEl.style.transform = `translate(0px, 0px)`; 
-      cardEl.style.zIndex = 100 + drawnCount; // Keeps newly opened card on top of right side stack
+      cardEl.style.zIndex = 100 + drawnCount;
 
-      // Update counters
       remainingEl.innerText = deck.length;
       drawnCountEl.innerText = drawnCount;
 
-      // 3. Log into bottom collection history grid
       addMiniCard(cardData);
 
-      // 4. Update the remaining deck stack underneath
       setTimeout(() => {
         renderDeckStack();
         isAnimating = false;
